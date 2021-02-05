@@ -9,6 +9,7 @@ from data import *
 from model import *
 from env import *
 
+
 class ActorCritic:
     def __init__(self, data_generator, eps=2.0, gamma=0.9, steps_per_game=25, modelpath=None):
         self.steps_per_game = steps_per_game
@@ -155,13 +156,18 @@ class ActorCritic:
                 running_reward = episode_reward*0.01 + running_reward*.99
 
                 t.set_description(f'Episode {self.episodes}')
-                t.set_postfix(
-                    episode_reward=episode_reward, running_reward=running_reward)
+                t.set_postfix(episode_reward=episode_reward, running_reward=running_reward)
+                # t.set_postfix(episode_reward=tf.keras.backend.get_value(episode_reward),
+                #               running_reward=tf.keras.backend.get_value(running_reward))
 
                 if not fine_tune:
-                    save_steps = 50000
+                    save_steps = 5000
                 else:
                     save_steps = 1000
+
+                self.history_reward.append(running_reward)
+                if self.episodes > 500 and running_reward > reward_threshold:
+                    break
                     
                 if self.episodes % save_steps == 0:
                     fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4)
@@ -174,6 +180,7 @@ class ActorCritic:
                     ax4.imshow((self.env.fixed[0,:,:,0]-self.env.moving[0,:,:,0])**2, cmap='gray')
                     ax4.set_title('difference')
                     plt.show()
+
                     print()
                     print('ground truth: ', self.env.ground_truth_params)
                     print('predicted params: ', -self.env.params)
@@ -186,7 +193,6 @@ class ActorCritic:
                         break
 
                 self.episodes += 1
-                self.history_reward.append(running_reward)
 
 
         print(f'\nSolved at episode {i}: average reward: {running_reward:.2f}!')

@@ -11,11 +11,13 @@ from env import *
 from agent import *
 
 
+
+
 def train():
 	train, _, _, _ = mnist_train_test(2)
-	batch_generator = generate_batch(train[1000:2020])
+	batch_generator = generate_batch(train[:500])
 	agent = ActorCritic(batch_generator, steps_per_game=55)
-	agent.train(eps=5.5, reward_threshold=0.0, steps_per_game=55)
+	agent.train(eps=6.5, reward_threshold=0.0, steps_per_game=55)
 
 if __name__ == '__main__':
 	train()
